@@ -6,6 +6,7 @@ import turtle
 s = turtle.getscreen()
 s.title("거북이 이동")
 s.setup(500, 500)
+
 # 시작점과 종점 좌표 설정
 start_pos = (-200, -200)
 end_pos = (200, 200)
@@ -26,8 +27,7 @@ marker_end.dot(10, "red")  # 빨간 점으로 끝 위치 표시
 
 # 거북이 변수 지정 / 시작점으로 이동(숨겨서)
 t = turtle.Turtle()
-turtle.setheading(45)
-t.setheading(45)
+t.setheading(t.towards(end_pos)) # 종점 방향으로 머리돌림
 t.speed(1)
 
 # 거북이 숨김 상태로 시작 (중앙에서 시작하기 때문)
@@ -44,17 +44,51 @@ obs = turtle.Turtle()
 obs.shape("square")
 obs.color("black")
 obs.shapesize(stretch_wid=5, stretch_len=5)
+obs.goto(0, 0)
 obs.penup()
 
 # 생성한 장애물을 리스트에 추가
 obstacles.append(obs)
 
+# 충돌 검사 함수
+def is_collision(turtle_obj, obstacle):
+    # 각 요소의 위치
+    tx, ty = turtle_obj.pos()
+    ox, oy = obstacle.pos()
+    # 장애물의 실제 넓이 추정
+    obstacle_half_width = 60
+    obstacle_half_height = 60
+
+    # 충돌 판정 (사각형 범위 내 거북이 좌표가 들어오는지)
+    if (ox - obstacle_half_width < tx < ox + obstacle_half_width and
+        oy - obstacle_half_height < ty < oy + obstacle_half_height):
+        return True
+    return False
+
+# 메시지 출력용 터틀
+msg_writer = turtle.Turtle()
+msg_writer.hideturtle()
+msg_writer.penup()
+msg_writer.goto(-200, 220)
+
+# 이동 및 충돌 회피 로직
+def move_turtle(turtle_obj, end_pos):
+    while turtle_obj.distance(end_pos) > 10:
+        if any(is_collision(turtle_obj, obs) for obs in obstacles):
+            msg_writer.clear()
+            msg_writer.write("충돌 감지! 경로 변경 중...", font=("Arial", 14, "bold"))
+            turtle_obj.right(90)
+            turtle_obj.forward(30)
+            turtle_obj.left(90)
+        else:
+            msg_writer.clear()  # 충돌 메시지 지움
+            turtle_obj.setheading(turtle_obj.towards(end_pos))
+            turtle_obj.forward(5)
+            
 # 위치 이동(정중앙 -> 시작점)후 거북이 보이게 함
 t.showturtle()
 t.pendown()
-
-# 거북이를 종점으로 이동
-t.goto(end_pos)
+move_turtle(t, end_pos)
 
 # 창을 닫지 않도록 대기
 turtle.done()
