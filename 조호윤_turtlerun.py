@@ -1,11 +1,13 @@
 import turtle
+import math
 # 시작점과 종점을 정해놓고, 종점에 거북이가 도착하게끔
 # 시작점: 좌측 하단, 종점: 우측 상단
 
-# 스크린 생성
+# 스크린 생성 / 이동거리 변수 초기화
 s = turtle.getscreen()
 s.title("거북이 이동")
 s.setup(500, 500)
+total_distance = 0
 
 # 시작점과 종점 좌표 설정
 start_pos = (-200, -200)
@@ -73,6 +75,9 @@ msg_writer.goto(-200, 220)
 
 # 이동 및 충돌 회피 로직
 def move_turtle(turtle_obj, end_pos):
+    global total_distance
+    prev_pos = turtle_obj.pos()
+    
     while turtle_obj.distance(end_pos) > 10:
         if any(is_collision(turtle_obj, obs) for obs in obstacles):
             msg_writer.clear()
@@ -85,10 +90,20 @@ def move_turtle(turtle_obj, end_pos):
             turtle_obj.setheading(turtle_obj.towards(end_pos))
             turtle_obj.forward(5)
             
+        # 거리 계산
+        new_pos = turtle_obj.pos()
+        step = math.dist(prev_pos, new_pos)  # 이동 거리 계산
+        total_distance += step
+        prev_pos = new_pos
+
 # 위치 이동(정중앙 -> 시작점)후 거북이 보이게 함
 t.showturtle()
 t.pendown()
 move_turtle(t, end_pos)
+
+# 총 이동 거리 출력
+msg_writer.goto(-200, 200)
+msg_writer.write(f"총 이동 거리: {total_distance:.2f} 픽셀", font=("Arial", 14, "bold"))
 
 # 창을 닫지 않도록 대기
 turtle.done()
