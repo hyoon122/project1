@@ -30,7 +30,7 @@ marker_end.dot(10, "red")  # 빨간 점으로 끝 위치 표시
 # 거북이 변수 지정 / 시작점으로 이동(숨겨서)
 t = turtle.Turtle()
 t.setheading(t.towards(end_pos)) # 종점 방향으로 머리돌림
-t.speed(1)
+t.speed(5)
 
 # 거북이 숨김 상태로 시작 (중앙에서 시작하기 때문)
 t.hideturtle()
@@ -77,16 +77,26 @@ msg_writer.goto(-200, 220)
 def move_turtle(turtle_obj, end_pos):
     global total_distance
     prev_pos = turtle_obj.pos()
+    current_message = None  # 현재 표시 중인 메시지를 추적
     
     while turtle_obj.distance(end_pos) > 10:
         if any(is_collision(turtle_obj, obs) for obs in obstacles):
-            msg_writer.clear()
-            msg_writer.write("충돌 감지! 경로 변경 중...", font=("Arial", 14, "bold"))
+            if current_message != "collision":
+                msg_writer.clear()
+                msg_writer.goto(-200, 220)
+                msg_writer.write("충돌 감지! 경로 변경 중...", font=("Malgun Gothic", 14, "bold"))
+                current_message = "collision"
+                
             turtle_obj.right(90)
             turtle_obj.forward(30)
             turtle_obj.left(90)
         else:
-            msg_writer.clear()  # 충돌 메시지 지움
+            if current_message != "moving":
+                msg_writer.clear()
+                msg_writer.goto(-200, 220)
+                msg_writer.write("이동 중...", font=("Malgun Gothic", 14, "bold"))
+                current_message = "moving"
+                
             turtle_obj.setheading(turtle_obj.towards(end_pos))
             turtle_obj.forward(5)
             
@@ -102,8 +112,17 @@ t.pendown()
 move_turtle(t, end_pos)
 
 # 총 이동 거리 출력
+msg_writer.clear()
 msg_writer.goto(-200, 200)
-msg_writer.write(f"총 이동 거리: {total_distance:.2f} 픽셀", font=("Arial", 14, "bold"))
+msg_writer.write(f"총 이동 거리: {total_distance:.2f} 픽셀", font=("Malgun Gothic", 14, "bold"))
+
+# 거북이의 상태(도착여부 체크) 출력
+if t.distance(end_pos) < 10: # 도착했다고 판단
+    msg_writer.goto(-200, 150)
+    msg_writer.write("목표 지점에 도착하였습니다.", font=("Malgun Gothic", 14, "bold"))
+else:
+    msg_writer.goto(-200, 150)
+    msg_writer.write("이동 중...", font=("Malgun Gothic", 14, "bold"))
 
 # 창을 닫지 않도록 대기
 turtle.done()
