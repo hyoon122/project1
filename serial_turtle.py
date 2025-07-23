@@ -11,7 +11,7 @@ t = turtle.Turtle()
 # 스크린 생성
 s = turtle.getscreen()
 s.title("초음파 센서를 활용한 거북이 이동")
-s.setup(500, 500)
+s.setup(600, 600)
 
 # 메시지 출력용 터틀
 msg_writer = turtle.Turtle()
