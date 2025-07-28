@@ -1,0 +1,17 @@
+# 1. 가상환경 생성
+python -m venv myvenv
+
+# 2. 가상환경 활성화
+myvenv\Scripts\activate
+
+# 3. 패키지 확인
+pip list
+
+# 4. 가상환경 비활성화
+deactivate
+
+git 저장소: 
+https://github.com/hyoon122/project1.git
+
+원격 저장소 연결:
+git remote add origin https://github.com/hyoon122/project1.git
