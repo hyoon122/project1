@@ -82,6 +82,45 @@ if img is None:
     print(f"이미지를 읽을 수 없습니다: {img_path}")
     exit()
 
+# (추가됨) 검은색 객체 감지 및 중심점 표시
+
+# 1. ROI 이미지 (또는 전체 이미지) → 그레이스케일
+gray = cv2.cvtColor(roi_img, cv2.COLOR_BGR2GRAY)
+
+# 2. 검은색 영역만 추출 (threshold: 어두운 픽셀만 남김)
+_, thresh = cv2.threshold(gray, 50, 255, cv2.THRESH_BINARY_INV)
+
+# 3. 윤곽선 찾기
+contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+# 복사본 이미지에 결과 그리기
+output_img = roi_img.copy()
+
+for cnt in contours:
+    # 너무 작은 노이즈 제거
+    area = cv2.contourArea(cnt)
+    if area < 100:
+        continue
+
+    # 경계 사각형
+    x, y, w, h = cv2.boundingRect(cnt)
+    cv2.rectangle(output_img, (x, y), (x + w, y + h), (0, 255, 0), 2)
+
+    # 중심점 계산
+    M = cv2.moments(cnt)
+    if M['m00'] != 0:
+        cx = int(M['m10'] / M['m00'])
+        cy = int(M['m01'] / M['m00'])
+        cv2.circle(output_img, (cx, cy), 5, (0, 0, 255), -1)  # 빨간 점
+        cv2.putText(output_img, f'({cx},{cy})', (cx + 5, cy - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 0, 255), 1)
+
+# 결과 출력
+cv2.imshow("Detected Contours + Centers", output_img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+
+'''
 # 히스토그램 계산 및 그리기
 channels = cv2.split(img)
 colors = ('b', 'g', 'r')
@@ -94,3 +133,4 @@ plt.xlabel("Pixel Value")
 plt.ylabel("Frequency")
 plt.grid(True)
 plt.show()
+'''
