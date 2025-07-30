@@ -45,6 +45,32 @@ while True:
 cap.release()
 cv2.destroyAllWindows()
 
+# 이미지 불러오기
+script_dir = os.path.dirname(os.path.abspath(__file__))
+img_path = os.path.join(script_dir, '..', '..', 'photos', 'capture_0.png')
+img_path = os.path.normpath(img_path)
+
+img = cv2.imread(img_path)
+if img is None:
+    print(f"이미지를 읽을 수 없습니다: {img_path}")
+    exit()
+
+# 관심영역 선택 기능
+roi = cv2.selectROI("Select ROI(Enter after Drag)", img, showCrosshair=True)
+cv2.destroyAllWindows()
+
+x, y, w, h = roi
+if w == 0 or h == 0:
+    print("관심영역이 선택되지 않았습니다.")
+    exit()
+
+roi_img = img[y:y+h, x:x+w]
+
+# 선택한 영역 보여주기
+cv2.imshow("Selected ROI", roi_img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
 # 현재 스크립트 위치 기준 경로 구하기
 script_dir = os.path.dirname(os.path.abspath(__file__))
 img_path = os.path.join(script_dir, '..', '..', 'photos', 'capture_0.png')
@@ -56,15 +82,15 @@ if img is None:
     print(f"이미지를 읽을 수 없습니다: {img_path}")
     exit()
 
-# 이미지 표시
-cv2.imshow('img', img)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
-
 # 히스토그램 계산 및 그리기
 channels = cv2.split(img)
 colors = ('b', 'g', 'r')
 for (ch, color) in zip (channels, colors):
     hist = cv2.calcHist([ch], [0], None, [256], [0, 256])
     plt.plot(hist, color = color)
+
+plt.title("ROI RGB 히스토그램")
+plt.xlabel("Pixel Value")
+plt.ylabel("Frequency")
+plt.grid(True)
 plt.show()
