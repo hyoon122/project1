@@ -102,9 +102,8 @@ for cnt in contours:
     if area < 100:
         continue
 
-    # 경계 사각형
-    x, y, w, h = cv2.boundingRect(cnt)
-    cv2.rectangle(output_img, (x, y), (x + w, y + h), (0, 255, 0), 2)
+    # 테두리 그리기 (외곽선을 따라 그림)
+    cv2.drawContours(output_img, [cnt], -1, (0, 255, 0), 2)
 
     # 중심점 계산
     M = cv2.moments(cnt)
@@ -118,19 +117,3 @@ for cnt in contours:
 cv2.imshow("Detected Contours + Centers", output_img)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
-
-
-'''
-# 히스토그램 계산 및 그리기
-channels = cv2.split(img)
-colors = ('b', 'g', 'r')
-for (ch, color) in zip (channels, colors):
-    hist = cv2.calcHist([ch], [0], None, [256], [0, 256])
-    plt.plot(hist, color = color)
-
-plt.title("ROI RGB 히스토그램")
-plt.xlabel("Pixel Value")
-plt.ylabel("Frequency")
-plt.grid(True)
-plt.show()
-'''
