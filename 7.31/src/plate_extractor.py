@@ -9,7 +9,7 @@ os.makedirs(save_dir, exist_ok=True)
 
 # 이미지 불러오기
 script_dir = os.path.dirname(os.path.abspath(__file__))
-img_path = os.path.join(script_dir, '..', 'img', 'car_01.jpg')
+img_path = os.path.join(script_dir, '..', 'img', 'car_01.png')
 img_path = os.path.normpath(img_path)
 
 # 경로 확인용
@@ -60,7 +60,7 @@ def onMouse(event, x, y, flags, param):
 
             # 4. 파일 이름 생성 (순번 방식 채택)
             existing_files = len(os.listdir("extracted_plates"))
-            filename = f"extracted_plates/plate_{existing_files+1:03d}.jpg"
+            filename = f"extracted_plates/plate_{existing_files+1:03d}.png"
             # 파일 저장
             success = cv2.imwrite(filename, result)
             
