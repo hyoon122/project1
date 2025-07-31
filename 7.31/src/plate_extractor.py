@@ -53,32 +53,28 @@ def onMouse(event, x, y, flags, param):
             width, height = 300, 150
             pts2 = np.float32([[0,0], [width-1,0], [width-1,height-1], [0,height-1]])
 
+            # 3. 원근 변환
+            mtrx = cv2.getPerspectiveTransform(pts1, pts2)
+            result = cv2.warpPerspective(img, mtrx, (int(width), int(height)))
+            # width, height를 int형으로 전환
 
-# # 방식 1: 타임스탬프 기반
-# import datetime
-# timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-# filename = f"extracted_plates/plate_{timestamp}.jpg"
-
-# 방식 2: 순번 기반 (해당 방식을 채택, import os 필요)
-
-existing_files = len(os.listdir("extracted_plates"))
-filename = f"extracted_plates/plate_{existing_files+1:03d}.jpg"
-
-# < 저장 코드 구현 단계 >
-# 원근변환 완료 후 자동 저장
-
-# float형으로 입력되어 있을 경우, int형으로 변환해서 출력
-result = cv2.warpPerspective(img, mtrx, (int(width), int(height)))
-
-# 파일 저장
-success = cv2.imwrite(filename, result)
-
-if success:
-    print(f"번호판 저장 완료: {filename}")
-    cv2.imshow('Extracted Plate', result)
-else:
-    print("저장 실패!")
+            # 4. 파일 이름 생성 (순번 방식 채택)
+            existing_files = len(os.listdir("extracted_plates"))
+            filename = f"extracted_plates/plate_{existing_files+1:03d}.jpg"
+            # 파일 저장
+            success = cv2.imwrite(filename, result)
+            
+            if success:
+                print(f"번호판 저장 완료: {filename}")
+                cv2.imshow('Extracted Plate', result)
+            else:
+                print("저장 실패!")
 
 # 저장 폴더가 없으면 생성
 if not os.path.exists(save_dir):
     os.makedirs(save_dir)
+
+cv2.imshow(win_name, img)
+cv2.setMouseCallback(win_name, onMouse)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
