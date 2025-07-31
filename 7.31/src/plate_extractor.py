@@ -43,3 +43,9 @@ if success:
     cv2.imshow('Extracted Plate', result)
 else:
     print("저장 실패!")
+
+# 저장 폴더가 없으면 생성
+save_dir = "extracted_plates"
+
+if not os.path.exists(save_dir):
+    os.makedirs(save_dir)
