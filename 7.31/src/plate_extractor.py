@@ -3,6 +3,23 @@ import os
 import cv2
 import numpy as np
 
+win_name = "License Plate Scanner"
+save_dir = "extracted_plates"
+os.makedirs(save_dir, exist_ok=True)
+
+# 이미지 불러오기
+script_dir = os.path.dirname(os.path.abspath(__file__))
+img_path = os.path.join(script_dir, '..', 'img', 'car_01.jpg')
+img_path = os.path.normpath(img_path)
+
+# 경로 확인용
+print(f"이미지 경로 확인: {img_path}")
+print(f"존재 여부: {os.path.exists(img_path)}")
+
+img = cv2.imread(img_path)
+if img is None:
+    print(f"이미지를 읽을 수 없습니다: {img_path}")
+    exit()
 
 # 번호판 영역 기준, 좌상단-> 우상단-> 우하단-> 좌하단 모서리 클릭
 sm = pts.sum(axis=1)           # x + y 값 계산
@@ -45,7 +62,5 @@ else:
     print("저장 실패!")
 
 # 저장 폴더가 없으면 생성
-save_dir = "extracted_plates"
-
 if not os.path.exists(save_dir):
     os.makedirs(save_dir)
