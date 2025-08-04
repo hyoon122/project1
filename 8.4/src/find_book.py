@@ -2,6 +2,7 @@
 # 초기 설정 및 매칭기 생성
 import cv2 , glob, numpy as np
 import os
+import time
 
 # 현재 스크립트 파일 기준으로 img/books 폴더 경로 생성 
 # 절대경로 - 파일이 어디서 실행되던간에 해당 파일이 위치한 디렉토리 기준으로 경로를 계산.
@@ -31,6 +32,7 @@ matcher = cv2.FlannBasedMatcher(index_params, search_params)
 
 # 책 표지 검색 함수 구현
 def serch(img):
+    start_time = time.time()  # 검색 시작 시간 기록
 
     # 쿼리 이미지(카메라로 촬영한 책) 전처리
     gray1 = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -76,7 +78,8 @@ def serch(img):
     if len(results) > 0:
         results = sorted([(v,k) for (k,v) in results.items() \
                     if v > 0], reverse=True)
-    return results
+    elapsed_time = time.time() - start_time  # 검색 걸린 시간 계산
+    return results, elapsed_time
 
 # 실시간 카메라 입력 및 사용자 인터페이스
 cap = cv2.VideoCapture(0)
@@ -119,7 +122,7 @@ cap.release()
 
 # 검색 실행 및 결과 표시
 if qImg is not None:
-    results = serch(qImg)  
+    results, elapsed_time = serch(qImg)  
 
     if len(results) == 0:
         print("No matched book cover found.")
@@ -127,13 +130,14 @@ if qImg is not None:
         for(i, (accuracy, cover_path)) in enumerate(results):
             print(f"{i}: {cover_path} - 정확도: {accuracy:.2%}")
             if i == 0:  # 가장 높은 정확도의 결과 표시
+                print(f"Search time: {elapsed_time:.3f} seconds\n")
                 cover = cv2.imread(cover_path)
 
                 # 파일명 추출 및 확장자 제거
                 filename = os.path.basename(cover_path)
                 name_only = os.path.splitext(filename)[0]  # ex) book21
 
-                # 텍스트 삽입
+                # 텍스트 삽입 (이름, 정확도, 검색시간 순으로)
                 cv2.putText(cover, f"Name: {name_only}", 
                         (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, 
                         (0, 255, 0), 2, cv2.LINE_AA)
@@ -141,6 +145,9 @@ if qImg is not None:
                 cv2.putText(cover, f"Accuracy: {accuracy*100:.2f}%", 
                            (10,100), cv2.FONT_HERSHEY_SIMPLEX, 1, 
                            (0,255,0), 2, cv2.LINE_AA)
+                
+                cv2.putText(cover, f"Search time: {elapsed_time:.3f} sec", (10, 140),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0,255,0), 2, cv2.LINE_AA)
                 
                 cv2.imshow('Result', cover)
 
