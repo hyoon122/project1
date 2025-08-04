@@ -125,9 +125,20 @@ if qImg is not None:
             print(f"{i}: {cover_path} - 정확도: {accuracy:.2%}")
             if i == 0:  # 가장 높은 정확도의 결과 표시
                 cover = cv2.imread(cover_path)
+
+                # 파일명 추출 및 확장자 제거
+                filename = os.path.basename(cover_path)
+                name_only = os.path.splitext(filename)[0]  # ex) book21
+
+                # 텍스트 삽입
+                cv2.putText(cover, f"Name: {name_only}", 
+                        (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, 
+                        (0, 255, 0), 2, cv2.LINE_AA)
+                
                 cv2.putText(cover, f"Accuracy: {accuracy*100:.2f}%", 
                            (10,100), cv2.FONT_HERSHEY_SIMPLEX, 1, 
                            (0,255,0), 2, cv2.LINE_AA)
+                
                 cv2.imshow('Result', cover)
 
 cv2.waitKey()
