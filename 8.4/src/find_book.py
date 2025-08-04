@@ -1,3 +1,4 @@
+# 사진을 돌려서 찍어도 검색이 되는 이유: ORB 특징 검출기, KNN매칭, 호모그래피(RANSAC)계산을 통해 사진을 돌려 찍어도 같은 책으로 인식할 수 있게됨.
 # 초기 설정 및 매칭기 생성
 import cv2 , glob, numpy as np
 import os
@@ -14,6 +15,7 @@ ratio = 0.7          # 좋은 매칭 선별 비율 (낮을수록 엄격)
 MIN_MATCH = 10       # 최소 매칭점 개수 (적을수록 관대)
 
 # ORB 특징 검출기 생성
+# ORB는 이미지 내에서 회전 불변성을 갖기 때문에, 이미지를 돌려서 찍어도 키포인트를 정확히 추출할 수 있음.
 
 detector = cv2.ORB_create()
 
@@ -49,6 +51,7 @@ def serch(img):
         kp2, desc2 = detector.detectAndCompute(gray2, None)
 
         # KNN 매칭 (k=2: 가장 가까운 2개 매칭점 반환)
+        # KNN 매칭을 통해 특징점의 방향까지 고려하여 매칭시켜줌. (정확도 ↑)
         matches = matcher.knnMatch(desc1, desc2, 2)
 
         # Lowe's 비율 테스트로 좋은 매칭 선별
@@ -60,7 +63,7 @@ def serch(img):
             src_pts = np.float32([ kp1[m.queryIdx].pt for m in good_matches ])
             dst_pts = np.float32([ kp2[m.trainIdx].pt for m in good_matches ])
             
-            # RANSAC으로 호모그래피 행렬 계산
+            # RANSAC으로 호모그래피 행렬 계산 / 두 이미지 사이의 회전, 이동, 스케일 변환을 찾아줌.
             mtrx, mask = cv2.findHomography(src_pts, dst_pts, 
                                           cv2.RANSAC, 5.0)
             
