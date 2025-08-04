@@ -2,7 +2,8 @@
 import cv2 , glob, numpy as np
 import os
 
-# 현재 스크립트 파일 기준으로 img/books 폴더 경로 생성
+# 현재 스크립트 파일 기준으로 img/books 폴더 경로 생성 
+# 절대경로 - 파일이 어디서 실행되던간에 해당 파일이 위치한 디렉토리 기준으로 경로를 계산.
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # find_book.py가 있는 폴더 (src)
 IMG_DIR = os.path.join(BASE_DIR, '..', 'img', 'books')
 cover_paths = glob.glob(os.path.join(IMG_DIR, '*.*'))
