@@ -32,7 +32,36 @@ def extract_line_colors(image_path, k=3):
     kmeans.fit(reshaped_image)
     cluster_centers = kmeans.cluster_centers_.astype(int)
     labels = kmeans.labels_
-    
+
     # 3. 각 클러스터 비율 계산
     _, counts = np.unique(labels, return_counts=True)
     ratios = counts / counts.sum()
+
+    # 4. 시각화
+    fig, axs = plt.subplots(1, 3, figsize=(18, 5))
+
+    # 4.1 원본 이미지
+    axs[0].imshow(image_rgb)
+    axs[0].set_title("원본 이미지")
+    axs[0].axis("off")
+
+    # 4.2 색상 팔레트 (대표 색상)
+    palette = np.zeros((50, 300, 3), dtype=np.uint8)
+    start = 0
+    for i, (color, ratio) in enumerate(zip(cluster_centers, ratios)):
+        end = start + int(ratio * 300)
+        palette[:, start:end] = color
+        start = end
+    axs[1].imshow(cv2.cvtColor(palette, cv2.COLOR_BGR2RGB))
+    axs[1].set_title("색상 팔레트 (KMeans)")
+    axs[1].axis("off")
+
+
+
+
+
+
+
+# 사용 예시
+img_path = "load_line.jpg"  # 여기에 차선 이미지 경로 입력
+extract_line_colors(img_path)
