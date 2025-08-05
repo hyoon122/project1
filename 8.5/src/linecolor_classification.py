@@ -9,7 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 
-def extract_lane_colors(image_path, k=3):
+def extract_line_colors(image_path, k=3):
     # 1. 이미지 로드 (BGR)
     # 이미지 불러오기
     script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -27,4 +27,12 @@ def extract_lane_colors(image_path, k=3):
     image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     reshaped_image = image.reshape((-1, 3))
 
+    # 2. K-Means로 색상 클러스터링
+    kmeans = KMeans(n_clusters=k, random_state=42)
+    kmeans.fit(reshaped_image)
+    cluster_centers = kmeans.cluster_centers_.astype(int)
+    labels = kmeans.labels_
     
+    # 3. 각 클러스터 비율 계산
+    _, counts = np.unique(labels, return_counts=True)
+    ratios = counts / counts.sum()
