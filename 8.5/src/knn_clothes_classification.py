@@ -55,3 +55,43 @@ csv_file = "color_dataset.csv"
 # 학습/테스트 데이터 분할 함수, 정확도 계산 함수, 마우스 이벤트 콜백 함수, ROI 영역의 평균 RGB 추출 함수,
 # 아따 드럽게많네
 
+# 3. K-NN 알고리즘 직접 구현
+class KNNClassifier:
+    def __init__(self, k=3):
+        self.k = k  # 최근접 이웃 개수 설정
+    
+    def fit(self, X_train, y_train):
+        # 학습 데이터 저장 (K-NN은 비모수 학습이라 별도 학습 과정 없음)
+        self.X_train = X_train
+        self.y_train = y_train
+    
+    def _euclidean_distance(self, x1, x2):
+        # 유클리드 거리 계산 함수
+        return np.linalg.norm(x1 - x2)
+    
+    def predict(self, X_test):
+        # 다수의 테스트 샘플에 대해 예측 수행
+        predictions = []
+        for test_point in X_test:
+            # 각 학습 데이터와 거리 계산
+            distances = [self._euclidean_distance(test_point, x) for x in self.X_train]
+            # 거리 기준 상위 k개 인덱스 추출
+            k_indices = np.argsort(distances)[:self.k]
+            k_labels = self.y_train[k_indices]
+            # 가장 빈도 높은 라벨을 예측값으로 선택
+            most_common = Counter(k_labels).most_common(1)[0][0]
+            predictions.append(most_common)
+        return np.array(predictions)
+    
+    def predict_proba(self, X_test):
+        # 각 테스트 샘플에 대해 확률(비율) 계산
+        prob_list = []
+        for test_point in X_test:
+            distances = [self._euclidean_distance(test_point, x) for x in self.X_train]
+            k_indices = np.argsort(distances)[:self.k]
+            k_labels = self.y_train[k_indices]
+            count = Counter(k_labels)
+            probs = {label: count[label]/self.k for label in count}  # 각 라벨의 비율
+            prob_list.append(probs)
+        return prob_list
+    
