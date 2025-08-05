@@ -89,3 +89,52 @@ def save_samples():
         writer.writerows(samples)
     print(f"{len(samples)}개의 샘플을 '{csv_file}' 파일에 저장했습니다.")
 
+# 2-4. 색 읽기 함수
+def collect_color_samples():
+    global frame, current_label, samples
+    current_label = None
+    
+    cap = cv2.VideoCapture(0)
+    if not cap.isOpened():
+        print("웹캠을 열 수 없습니다.")
+        return
+    
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+
+    cv2.namedWindow("Color Sample Collection")
+    cv2.setMouseCallback("Color Sample Collection", mouse_callback)
+
+    print("숫자 키 1~7로 라벨 선택 (1:Red, 2:Blue, 3:Green, 4:Yellow, 5:Black, 6:White, 7:Gray)")
+    print("ESC 키로 종료, S 키로 샘플 저장")
+    
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            print("프레임을 읽을 수 없습니다.")
+            break
+        
+        # 화면에 현재 라벨 및 샘플 개수 표시
+        label_text = f"Current Label: {color_labels.get(current_label, 'None')}"
+        cv2.putText(frame, label_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 
+                    1, (0, 255, 0), 2)
+        cv2.putText(frame, f"Samples Collected: {len(samples)}", (10, 70), 
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 0), 2)
+        
+        cv2.imshow("Color Sample Collection", frame)
+        
+        key = cv2.waitKey(1) & 0xFF
+        if key == 27:  # ESC
+            break
+        elif key in [ord(str(i)) for i in range(1, 8)]:
+            current_label = int(chr(key))
+            print(f"라벨이 {color_labels[current_label]}(으)로 설정되었습니다.")
+        elif key == ord('s') or key == ord('S'):
+            save_samples()
+            samples.clear()  # 저장 후 리스트 비우기
+    
+    cap.release()
+    cv2.destroyAllWindows()
+
+if __name__ == "__main__":
+    collect_color_samples()
