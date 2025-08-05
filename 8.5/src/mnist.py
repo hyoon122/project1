@@ -1,4 +1,5 @@
 import numpy as np, cv2
+import os
 
 data = None  # 이미지 데이타 셋 
 k = list(range(10)) # [0,1,2,3,4,5,6,7,8,9] 레이블 셋
