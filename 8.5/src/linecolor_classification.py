@@ -9,7 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 
-def extract_line_colors(image_path, k=3):
+def extract_line_colors(k=3):
     # 1. 이미지 로드 (BGR)
     # 이미지 불러오기
     script_dir = os.path.dirname(os.path.abspath(__file__))
