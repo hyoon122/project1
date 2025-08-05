@@ -236,8 +236,6 @@ def main():
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
     
     cv2.namedWindow("Color Classifier")
-    # 마우스 콜백 등록, 프레임을 param으로 넘겨줌
-    cv2.setMouseCallback("Color Classifier", mouse_callback, frame)
     
     print("[조작 가이드] 숫자키 1~7: 라벨 선택 | L: 학습 모드 | P: 예측 모드 | S: 모델 저장 | R: 데이터셋 리셋 | Q: 종료")
     
@@ -246,6 +244,9 @@ def main():
         if not ret:
             print("웹캠 프레임 읽기 실패")
             break
+
+        # 마우스 콜백 등록, 프레임을 param으로 넘겨줌
+        cv2.setMouseCallback("Color Classifier", mouse_callback, frame)
 
         # 화면에 모드, 라벨, 샘플 수, 정확도, 조작 가이드 출력
         cv2.putText(frame, f"모드: {mode}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0), 2)
