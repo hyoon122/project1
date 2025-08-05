@@ -95,3 +95,35 @@ class KNNClassifier:
             prob_list.append(probs)
         return prob_list
     
+# CSV 파일에서 데이터 읽기
+def load_dataset(csv_path):
+    data, labels = [], []
+    if not os.path.exists(csv_path):
+        return np.array(data), np.array(labels)
+    with open(csv_path, newline='') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            # 0~255 RGB 값을 0~1 범위로 정규화하여 저장
+            r = float(row['R']) / 255.0
+            g = float(row['G']) / 255.0
+            b = float(row['B']) / 255.0
+            label = int(row['Label'])
+            data.append([r, g, b])
+            labels.append(label)
+    return np.array(data), np.array(labels)
+
+# CSV에 데이터 샘플 저장
+def save_samples(samples, filename=csv_file):
+    header = ['R', 'G', 'B', 'Label']
+    write_header = not os.path.exists(filename)
+    with open(filename, 'a', newline='') as f:
+        writer = csv.writer(f)
+        if write_header:
+            writer.writerow(header)
+        writer.writerows(samples)
+
+# 데이터셋 리셋(삭제)
+def reset_dataset(filename=csv_file):
+    if os.path.exists(filename):
+        os.remove(filename)
+        print("데이터셋이 리셋되었습니다.")
