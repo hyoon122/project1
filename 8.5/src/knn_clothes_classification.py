@@ -127,3 +127,30 @@ def reset_dataset(filename=csv_file):
     if os.path.exists(filename):
         os.remove(filename)
         print("데이터셋이 리셋되었습니다.")
+        
+# 학습/테스트 데이터 분할 함수
+def train_test_split(X, y, test_ratio=0.2):
+    indices = np.arange(len(X))
+    np.random.shuffle(indices)
+    test_size = int(len(X)*test_ratio)
+    test_idx = indices[:test_size]
+    train_idx = indices[test_size:]
+    return X[train_idx], X[test_idx], y[train_idx], y[test_idx]
+
+# 정확도 계산
+def accuracy_score(y_true, y_pred):
+    return np.sum(y_true == y_pred) / len(y_true)
+
+# 최적 k 찾기
+def find_best_k(X_train, y_train, X_test, y_test, k_values=[3,5,7,9]):
+    best_k, best_acc = k_values[0], 0
+    for k in k_values:
+        knn = KNNClassifier(k=k)
+        knn.fit(X_train, y_train)
+        pred = knn.predict(X_test)
+        acc = accuracy_score(y_test, pred)
+        print(f"K={k}, 정확도: {acc:.3f}")
+        if acc > best_acc:
+            best_acc = acc
+            best_k = k
+    return best_k, best_acc
