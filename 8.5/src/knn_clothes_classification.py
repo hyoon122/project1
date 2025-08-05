@@ -7,6 +7,16 @@ import numpy as np
 import csv
 import os
 from collections import Counter
+import matplotlib.font_manager as fm
+import platform
+
+# 한글 폰트 설정 (Windows: 맑은 고딕)
+if platform.system() == 'Windows':
+    plt.rc('font', family='Malgun Gothic')
+else:
+    plt.rc('font', family='AppleGothic')  # Mac용
+
+plt.rcParams['axes.unicode_minus'] = False  # 마이너스 기호 깨짐 방지
 
 # 1-2. 웹캠 연결 테스트 및 영상 출력
 def webcam_test():
@@ -226,7 +236,7 @@ def main():
     
     cv2.namedWindow("Color Classifier")
     # 마우스 콜백 등록, 프레임을 param으로 넘겨줌
-    cv2.setMouseCallback("Color Classifier", mouse_callback)
+    cv2.setMouseCallback("Color Classifier", mouse_callback, frame)
     
     print("[조작 가이드] 숫자키 1~7: 라벨 선택 | L: 학습 모드 | P: 예측 모드 | S: 모델 저장 | R: 데이터셋 리셋 | Q: 종료")
     
