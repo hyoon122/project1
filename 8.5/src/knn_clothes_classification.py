@@ -246,7 +246,7 @@ def main():
         if mode == "Collect":
             # 학습 모드에서는 샘플 수집만 가능 (마우스 클릭으로 처리됨)
             pass
-        
+
         elif mode == "Predict":
             # 예측 모드에서는 ROI 사각형 그리기 및 이동 가능
             cv2.rectangle(frame, (roi_x, roi_y), (roi_x+roi_size, roi_y+roi_size), (0,255,0), 2)
@@ -275,3 +275,60 @@ def main():
         
         cv2.imshow("Color Classifier", frame)
         key = cv2.waitKey(1) & 0xFF
+
+        # 키 이벤트 처리
+        if key == ord('q') or key == ord('Q'):
+            print("프로그램 종료")
+            break
+        elif key in [ord(str(i)) for i in range(1, 8)]:
+            # 숫자키 1~7로 라벨 선택
+            current_label = int(chr(key))
+            print(f"라벨 선택: {color_labels[current_label]}")
+        elif key == ord('l') or key == ord('L'):
+            # 학습 모드 진입
+            mode = "Collect"
+            print("학습 모드로 전환. 마우스 클릭으로 샘플 수집")
+        elif key == ord('p') or key == ord('P'):
+            # 예측 모드 진입 및 모델 학습
+            if len(samples) < 30:
+                print("충분한 데이터가 없어 예측 불가")
+                model = None
+                accuracy = 0
+            else:
+                # CSV 저장된 데이터 로드
+                save_samples(samples)
+                X, y = load_dataset(csv_file)
+                if len(X) < 30:
+                    print("데이터가 부족합니다. 더 많은 샘플을 수집하세요.")
+                    continue
+                # 학습/테스트 분할
+                X_train, X_test, y_train, y_test = train_test_split(X, y)
+                # 최적 k 탐색 및 모델 생성
+                best_k, accuracy = find_best_k(X_train, y_train, X_test, y_test)
+                model = KNNClassifier(k=best_k)
+                model.fit(X_train, y_train)
+                mode = "Predict"
+                print(f"예측 모드로 전환 (k={best_k}, 정확도: {accuracy:.3f})")
+                history.clear()
+        elif key == ord('s') or key == ord('S'):
+            # 현재 수집한 샘플을 CSV에 저장
+            if len(samples) > 0:
+                save_samples(samples)
+                print(f"샘플 {len(samples)}개 저장 완료")
+                samples.clear()
+            else:
+                print("저장할 샘플이 없습니다.")
+        elif key == ord('r') or key == ord('R'):
+            # 데이터셋 초기화
+            reset_dataset()
+            samples.clear()
+            current_label = None
+            model = None
+            accuracy = 0
+            print("데이터셋 리셋 완료")
+    
+    cap.release()
+    cv2.destroyAllWindows()
+
+if __name__ == "__main__":
+    main()
