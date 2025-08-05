@@ -56,11 +56,20 @@ def extract_line_colors(image_path, k=3):
     axs[1].set_title("색상 팔레트 (KMeans)")
     axs[1].axis("off")
 
+    # 4.3 색상 분포 차트
+    axs[2].bar(range(k), ratios, color=[color/255 for color in cluster_centers])
+    axs[2].set_title("색상 분포 차트")
+    axs[2].set_xlabel("클러스터 인덱스")
+    axs[2].set_ylabel("비율")
 
+    plt.tight_layout()
+    plt.show()
 
-
-
-
+    # 5. 상세 분석 출력
+    print("상세 분석 결과")
+    for i, (color, count, ratio) in enumerate(zip(cluster_centers, counts, ratios)):
+        b, g, r = color
+        print(f"클러스터 {i}: BGR=({b}, {g}, {r}), 픽셀 수={count}, 비율={ratio:.2%}")
 
 # 사용 예시
 img_path = "load_line.jpg"  # 여기에 차선 이미지 경로 입력
