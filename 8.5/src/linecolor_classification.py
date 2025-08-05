@@ -24,6 +24,7 @@ def extract_line_colors(image_path, k=3):
     if image is None:
         print(f"이미지를 읽을 수 없습니다: {img_path}")
         exit()
+
     image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     reshaped_image = image.reshape((-1, 3))
 
@@ -72,5 +73,5 @@ def extract_line_colors(image_path, k=3):
         print(f"클러스터 {i}: BGR=({b}, {g}, {r}), 픽셀 수={count}, 비율={ratio:.2%}")
 
 # 사용 예시
-img_path = "load_line.jpg"  # 여기에 차선 이미지 경로 입력
-extract_line_colors(img_path)
+if __name__ == "__main__":
+    extract_line_colors()
