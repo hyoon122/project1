@@ -35,3 +35,57 @@ def webcam_test():
 
 if __name__ == "__main__":
     webcam_test()
+
+
+# 2-1. 분류할 옷 색상 정의 및 라벨 매핑
+color_labels = {
+    1: 'Red',
+    2: 'Blue',
+    3: 'Green',
+    4: 'Yellow',
+    5: 'Black',
+    6: 'White',
+    7: 'Gray'
+}
+
+# CSV 저장 경로
+csv_file = "color_dataset.csv"
+
+# 샘플 데이터 저장 리스트 (RGB + label)
+samples = []
+
+# 2-2. 클릭한 위치의 픽셀 RGB값 추출용 이벤트 핸들러
+def mouse_callback(event, x, y, flags, param):
+    global frame, current_label, samples
+    
+    if event == cv2.EVENT_LBUTTONDOWN:
+        # BGR to RGB 변환
+        bgr = frame[y, x]
+        rgb = bgr[::-1]  # BGR -> RGB
+        
+        hsv = cv2.cvtColor(np.uint8([[bgr]]), cv2.COLOR_BGR2HSV)[0][0]
+
+        print(f"픽셀 위치: ({x}, {y}), RGB: {rgb}, HSV: {hsv}, 현재 라벨: {current_label} - {color_labels.get(current_label, 'None')}")
+        
+        if current_label in color_labels:
+            samples.append([rgb[0], rgb[1], rgb[2], current_label])
+            print(f"샘플 수집 완료 - 총 샘플 수: {len(samples)}")
+
+# 2-3. 샘플 저장 함수
+def save_samples():
+    # CSV 파일로 저장
+    header = ['R', 'G', 'B', 'Label']
+    if os.path.exists(csv_file):
+        mode = 'a'
+        write_header = False
+    else:
+        mode = 'w'
+        write_header = True
+    
+    with open(csv_file, mode, newline='') as f:
+        writer = csv.writer(f)
+        if write_header:
+            writer.writerow(header)
+        writer.writerows(samples)
+    print(f"{len(samples)}개의 샘플을 '{csv_file}' 파일에 저장했습니다.")
+
