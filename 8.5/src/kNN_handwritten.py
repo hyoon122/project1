@@ -1,3 +1,4 @@
+import os
 import numpy as np, cv2
 import mnist
 
@@ -8,7 +9,19 @@ knn = cv2.ml.KNearest_create()
 knn.train(train, cv2.ml.ROW_SAMPLE, train_labels)
 
 # 인식시킬 손글씨 이미지 읽기 ---③
-image = cv2.imread('../img/4027.png')
+# 이미지 불러오기
+script_dir = os.path.dirname(os.path.abspath(__file__))
+img_path = os.path.join(script_dir, '..', 'img', '4027.png')
+img_path = os.path.normpath(img_path)
+
+# 경로 확인용
+print(f"이미지 경로 확인: {img_path}")
+print(f"존재 여부: {os.path.exists(img_path)}")
+
+image = cv2.imread(img_path)
+if image is None:
+    print(f"이미지를 읽을 수 없습니다: {img_path}")
+    exit()
 cv2.imshow("image", image)
 cv2.waitKey(0) 
 
