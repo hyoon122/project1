@@ -8,6 +8,16 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
+import matplotlib.font_manager as fm
+import platform
+
+# 한글 폰트 설정 (Windows: 맑은 고딕)
+if platform.system() == 'Windows':
+    plt.rc('font', family='Malgun Gothic')
+else:
+    plt.rc('font', family='AppleGothic')  # Mac용
+
+plt.rcParams['axes.unicode_minus'] = False  # 마이너스 기호 깨짐 방지
 
 def extract_line_colors(k=3):
     # 1. 이미지 로드 (BGR)
