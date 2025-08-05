@@ -54,7 +54,8 @@ csv_file = "color_dataset.csv"
 # 함수 구상: K-NN 알고리즘 구현, CSV에서 데이터 파일을 읽고 저장하는 함수, 데이터셋 리셋 함수,
 # 학습/테스트 데이터 분할 함수, 정확도 계산 함수
 
-# 4~5단계: 마우스 이벤트 콜백 함수 (일단 여기까진 완료),  ROI 영역의 평균 RGB 추출 함수
+# 4~5단계: 마우스 이벤트 콜백 함수, ROI 영역의 평균 RGB 추출 함수
+# + 메인루프 작성 필요.
 # 아따 드럽게많네
 
 # 3. K-NN 알고리즘 직접 구현
@@ -204,3 +205,13 @@ def mouse_callback(event, x, y, flags, param):
             roi_y = max(0, min(roi_y, 480 - roi_size))
         elif event == cv2.EVENT_LBUTTONUP:
             dragging = False
+
+# ROI 영역의 평균 RGB 추출 및 예측 수행
+def predict_roi_color(frame):
+    global model, roi_x, roi_y, roi_size
+    roi = frame[roi_y:roi_y+roi_size, roi_x:roi_x+roi_size]
+    mean_bgr = cv2.mean(roi)[:3]  # 평균 BGR 값
+    mean_rgb = np.array([mean_bgr[2]/255.0, mean_bgr[1]/255.0, mean_bgr[0]/255.0])  # 정규화된 RGB
+    pred_label = model.predict(np.array([mean_rgb]))[0]
+    proba_dict = model.predict_proba(np.array([mean_rgb]))[0]
+    return pred_label, proba_dict
