@@ -246,3 +246,32 @@ def main():
         if mode == "Collect":
             # 학습 모드에서는 샘플 수집만 가능 (마우스 클릭으로 처리됨)
             pass
+        
+        elif mode == "Predict":
+            # 예측 모드에서는 ROI 사각형 그리기 및 이동 가능
+            cv2.rectangle(frame, (roi_x, roi_y), (roi_x+roi_size, roi_y+roi_size), (0,255,0), 2)
+            
+            if model is not None and len(X_train) > 0:
+                label, proba = predict_roi_color(frame)
+                color_name = color_labels[label]
+                confidence = int(proba.get(label, 0)*100)
+                
+                # 예측 결과 텍스트 출력
+                cv2.putText(frame, f"예측: {color_name} ({confidence}%)", (10, 190), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0,255,0), 2)
+                
+                # 신뢰도 바 시각화
+                bar_x, bar_y = 10, 220
+                bar_width, bar_height = 200, 20
+                cv2.rectangle(frame, (bar_x, bar_y), (bar_x+bar_width, bar_y+bar_height), (50,50,50), 2)
+                fill_width = int(bar_width * confidence / 100)
+                cv2.rectangle(frame, (bar_x, bar_y), (bar_x+fill_width, bar_y+bar_height), (0,255,0), -1)
+                
+                # 최근 10개 예측 히스토리 출력
+                history.append((color_name, confidence))
+                if len(history) > 10:
+                    history.pop(0)
+                for i, (hn, hc) in enumerate(history):
+                    cv2.putText(frame, f"{hn} {hc}%", (10, 260 + i*20), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255,255,255), 1)
+        
+        cv2.imshow("Color Classifier", frame)
+        key = cv2.waitKey(1) & 0xFF
