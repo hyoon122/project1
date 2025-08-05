@@ -7,17 +7,22 @@ import numpy as np
 import csv
 import os
 from collections import Counter
-import matplotlib.pyplot as plt
-import matplotlib.font_manager as fm
-import platform
+from PIL import ImageFont, ImageDraw, Image
 
-# 한글 폰트 설정 (Windows: 맑은 고딕)
-if platform.system() == 'Windows':
-    plt.rc('font', family='Malgun Gothic')
-else:
-    plt.rc('font', family='AppleGothic')  # Mac용
-
-plt.rcParams['axes.unicode_minus'] = False  # 마이너스 기호 깨짐 방지
+# OpenCV 프레임에 한글 텍스트를 그리는 함수
+def draw_text_korean(img, text, position, font_path='C:/Windows/Fonts/malgun.ttf', font_size=24, color=(255,255,255)):
+    """
+    한글 텍스트를 OpenCV 프레임 위에 출력하는 함수
+    """
+    try:
+        img_pil = Image.fromarray(img)
+        draw = ImageDraw.Draw(img_pil)
+        font = ImageFont.truetype(font_path, font_size)
+        draw.text(position, text, font=font, fill=color)
+        return np.array(img_pil)
+    except Exception as e:
+        print("한글 출력 오류:", e)
+        return img  # 오류 발생 시 원본 이미지 그대로 반환
 
 # 1-2. 웹캠 연결 테스트 및 영상 출력
 def webcam_test():
@@ -249,11 +254,11 @@ def main():
         cv2.setMouseCallback("Color Classifier", mouse_callback, frame)
 
         # 화면에 모드, 라벨, 샘플 수, 정확도, 조작 가이드 출력
-        cv2.putText(frame, f"모드: {mode}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0), 2)
-        cv2.putText(frame, f"라벨: {color_labels.get(current_label, 'None')}", (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255,255,0), 2)
-        cv2.putText(frame, f"수집 샘플 수: {len(samples)}", (10, 110), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255,255,0), 2)
-        cv2.putText(frame, f"정확도: {accuracy*100:.1f}%", (10, 150), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0,255,255), 2)
-        cv2.putText(frame, "1~7 숫자키: 라벨 선택 | L:학습 | P:예측 | S:저장 | R:리셋 | Q:종료", (10, 470), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (200,200,200), 1)
+        frame = draw_text_korean(frame, f"모드: {mode}", (10, 30), font_size=24, color=(0, 255, 0))
+        frame = draw_text_korean(frame, f"라벨: {color_labels.get(current_label, '없음')}", (10, 70), font_size=20, color=(255, 255, 0))
+        frame = draw_text_korean(frame, f"수집 샘플 수: {len(samples)}개", (10, 110), font_size=20, color=(255, 255, 0))
+        frame = draw_text_korean(frame, f"정확도: {accuracy*100:.1f}%", (10, 150), font_size=20, color=(0, 255, 255))
+        frame = draw_text_korean(frame, "1~7: 라벨 | L:학습 | P:예측 | S:저장 | R:리셋 | Q:종료", (10, 470), font_size=18, color=(200, 200, 200))
 
         if mode == "Collect":
             # 학습 모드에서는 샘플 수집만 가능 (마우스 클릭으로 처리됨)
@@ -269,7 +274,7 @@ def main():
                 confidence = int(proba.get(label, 0)*100)
                 
                 # 예측 결과 텍스트 출력
-                cv2.putText(frame, f"예측: {color_name} ({confidence}%)", (10, 190), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0,255,0), 2)
+                frame = draw_text_korean(frame, f"예측: {color_name} ({confidence}%)", (10, 190), font_size=20, color=(0, 255, 0))
                 
                 # 신뢰도 바 시각화
                 bar_x, bar_y = 10, 220
@@ -283,7 +288,7 @@ def main():
                 if len(history) > 10:
                     history.pop(0)
                 for i, (hn, hc) in enumerate(history):
-                    cv2.putText(frame, f"{hn} {hc}%", (10, 260 + i*20), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255,255,255), 1)
+                    frame = draw_text_korean(frame, f"{hn} {hc}%", (10, 260 + i*20), font_size=16)
         
         cv2.imshow("Color Classifier", frame)
         key = cv2.waitKey(1) & 0xFF
