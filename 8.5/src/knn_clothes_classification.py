@@ -54,8 +54,8 @@ csv_file = "color_dataset.csv"
 # 함수 구상: K-NN 알고리즘 구현, CSV에서 데이터 파일을 읽고 저장하는 함수, 데이터셋 리셋 함수,
 # 학습/테스트 데이터 분할 함수, 정확도 계산 함수
 
-# 4~5단계: 마우스 이벤트 콜백 함수, ROI 영역의 평균 RGB 추출 함수
-# + 메인루프 작성 필요.
+# 4단계 - 마우스 이벤트 콜백 함수, ROI 영역의 평균 RGB 추출 함수
+# 5단계 - 메인루프 작성중
 # 아따 드럽게많네
 
 # 3. K-NN 알고리즘 직접 구현
@@ -215,3 +215,34 @@ def predict_roi_color(frame):
     pred_label = model.predict(np.array([mean_rgb]))[0]
     proba_dict = model.predict_proba(np.array([mean_rgb]))[0]
     return pred_label, proba_dict
+
+# 5. 메인루프 작성
+def main():
+    global current_label, samples, mode, model, best_k, X_train, y_train, accuracy, history
+    
+    cap = cv2.VideoCapture(0)  # 웹캠 열기
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+    
+    cv2.namedWindow("Color Classifier")
+    # 마우스 콜백 등록, 프레임을 param으로 넘겨줌
+    cv2.setMouseCallback("Color Classifier", mouse_callback)
+    
+    print("[조작 가이드] 숫자키 1~7: 라벨 선택 | L: 학습 모드 | P: 예측 모드 | S: 모델 저장 | R: 데이터셋 리셋 | Q: 종료")
+    
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            print("웹캠 프레임 읽기 실패")
+            break
+
+        # 화면에 모드, 라벨, 샘플 수, 정확도, 조작 가이드 출력
+        cv2.putText(frame, f"모드: {mode}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0), 2)
+        cv2.putText(frame, f"라벨: {color_labels.get(current_label, 'None')}", (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255,255,0), 2)
+        cv2.putText(frame, f"수집 샘플 수: {len(samples)}", (10, 110), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255,255,0), 2)
+        cv2.putText(frame, f"정확도: {accuracy*100:.1f}%", (10, 150), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0,255,255), 2)
+        cv2.putText(frame, "1~7 숫자키: 라벨 선택 | L:학습 | P:예측 | S:저장 | R:리셋 | Q:종료", (10, 470), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (200,200,200), 1)
+
+        if mode == "Collect":
+            # 학습 모드에서는 샘플 수집만 가능 (마우스 클릭으로 처리됨)
+            pass
