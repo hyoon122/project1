@@ -52,7 +52,9 @@ color_labels = {
 csv_file = "color_dataset.csv"
 
 # 함수 구상: K-NN 알고리즘 구현, CSV에서 데이터 파일을 읽고 저장하는 함수, 데이터셋 리셋 함수,
-# 학습/테스트 데이터 분할 함수, 정확도 계산 함수, 마우스 이벤트 콜백 함수, ROI 영역의 평균 RGB 추출 함수,
+# 학습/테스트 데이터 분할 함수, 정확도 계산 함수
+
+# 4~5단계: 마우스 이벤트 콜백 함수 (일단 여기까진 완료),  ROI 영역의 평균 RGB 추출 함수
 # 아따 드럽게많네
 
 # 3. K-NN 알고리즘 직접 구현
@@ -154,3 +156,51 @@ def find_best_k(X_train, y_train, X_test, y_test, k_values=[3,5,7,9]):
             best_acc = acc
             best_k = k
     return best_k, best_acc
+
+# 전역 변수
+current_label = None  # 현재 선택된 색상 라벨
+samples = []          # 학습 샘플 임시 저장소
+mode = "Collect"      # 모드 상태 ("Collect" 또는 "Predict")
+roi_size = 100        # ROI 크기 (100x100)
+roi_x, roi_y = 270, 190  # ROI 좌상단 위치
+dragging = False      # ROI 드래그 상태
+offset_x, offset_y = 0, 0  # 마우스 드래그 오프셋
+model = None          # K-NN 모델 객체
+best_k = 3            # 최적 k값
+X_train, y_train = None, None  # 학습 데이터
+accuracy = 0.0        # 모델 정확도
+history = []          # 최근 예측 결과 저장(최대 10개)
+
+# 4. 마우스 이벤트 콜백 함수
+def mouse_callback(event, x, y, flags, param):
+    global samples, current_label, dragging, roi_x, roi_y, offset_x, offset_y
+    
+    if mode == "Collect":
+        # 학습 모드에서는 좌클릭 시 해당 픽셀의 RGB값 저장
+        if event == cv2.EVENT_LBUTTONDOWN:
+            if current_label is None:
+                print("먼저 숫자 키 1~7로 라벨을 선택하세요.")
+                return
+            frame = param
+            bgr = frame[y, x]
+            rgb = bgr[::-1]  # BGR -> RGB 변환
+            samples.append([rgb[0], rgb[1], rgb[2], current_label])
+            print(f"샘플 수집: {color_labels[current_label]} - 총 {len(samples)}개")
+            
+    elif mode == "Predict":
+        # 예측 모드에서는 ROI 사각형 드래그 이동 가능
+        if event == cv2.EVENT_LBUTTONDOWN:
+            # ROI 내부에서 클릭 시 드래그 시작
+            if roi_x <= x <= roi_x + roi_size and roi_y <= y <= roi_y + roi_size:
+                dragging = True
+                offset_x = x - roi_x
+                offset_y = y - roi_y
+        elif event == cv2.EVENT_MOUSEMOVE and dragging:
+            # 드래그 중이면 ROI 위치 갱신
+            roi_x = x - offset_x
+            roi_y = y - offset_y
+            # 화면 밖으로 나가지 않도록 제한
+            roi_x = max(0, min(roi_x, 640 - roi_size))
+            roi_y = max(0, min(roi_y, 480 - roi_size))
+        elif event == cv2.EVENT_LBUTTONUP:
+            dragging = False
