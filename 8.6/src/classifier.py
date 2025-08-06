@@ -1,3 +1,5 @@
+# 도로 상황 분류: '일반 도로' vs '공사 중 도로'
+
 import os
 import cv2
 import numpy as np
