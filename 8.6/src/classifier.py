@@ -48,3 +48,14 @@ def create_bow_dictionary():
     np.save('./models/dictionary.npy', dictionary)  # 시각 사전 저장 (재사용 가능)
     return dictionary
 
+# 이미지 리스트를 BOW 벡터로 변환하는 함수
+def extract_bow_features(images, bow_extractor):
+    features = []
+    for img in images:
+        keypoints = bow_extractor.descriptorExtractor.detect(img, None)  # 키포인트 추출
+        bow_feature = bow_extractor.compute(img, keypoints)  # BOW 히스토그램 생성
+        if bow_feature is not None:
+            features.append(bow_feature.flatten())  # 벡터로 변환 후 리스트에 추가
+    return features
+
+
